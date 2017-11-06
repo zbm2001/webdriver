@@ -10,8 +10,8 @@ module.exports = function linkPage (matchesLinkText = '我的', delay = 500) {
 
     $myA.click()
 
-    delay && await driver.sleep(delay)
+    await driver.sleep(delay)
 
-    return Promise.resolve(driver)
+    return driver
   }
 }

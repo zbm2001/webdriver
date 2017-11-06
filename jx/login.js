@@ -51,8 +51,8 @@ module.exports = function login (userinfo = {phone: '13552424310', password: '12
 
     $pageRoot.findElement(By.linkText('登录')).click()
 
-    delay && await driver.sleep(delay)
+    await driver.sleep(delay)
 
-    return Promise.resolve(driver)
+    return driver
   }
 }

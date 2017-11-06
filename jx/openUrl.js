@@ -16,8 +16,8 @@ module.exports = function openUrl (url = 'http://localhost:8080', delay = 500) {
 
     typeof url === 'string' && driver.get(url)
 
-    delay && await driver.sleep(delay)
+    await driver.sleep(delay)
 
-    return Promise.resolve(driver)
+    return driver
   }
 }
