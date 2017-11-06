@@ -5,12 +5,12 @@ module.exports = function guide (stepBranch = '立即体验', delay = 500) {
     let driverActions = driver.actions()
     let touchActions = driver.touchActions()
     let By = webdriver.By
-    let $appGuidePage = await driver.findElement(By.id('appGuidePage'))
+    let $appGuidePage = await driver.findElement(By.id('appGuidePage')).catch(() => {})
 
     if ($appGuidePage) {
-      await Array.from({length: 4}).reduce((flickDefer) => {
-        // console.log('flickDefer', flickDefer)
-        return flickDefer ? flickDefer.then(() => flickAsync($appGuidePage)) : flickAsync($appGuidePage)
+      await Array.from({length: 4}).reduce(async (flickDefer, n, i) => {
+        await (i > 1 ? flickDefer : flickAsync($appGuidePage))
+        return flickAsync($appGuidePage)
       })
 
       let selector = '.startCat'
@@ -20,9 +20,8 @@ module.exports = function guide (stepBranch = '立即体验', delay = 500) {
         selector = '.register'
       }
 
-      await $appGuidePage.
-      findElement(By.css(selector)). // 立即体验
-      click()
+      let $linkBtn = await $appGuidePage.findElement(By.css(selector)).catch(() => {})
+      if ($linkBtn) await $linkBtn.click()
     }
 
     await driver.sleep(delay)
