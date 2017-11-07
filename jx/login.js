@@ -1,15 +1,25 @@
 const Config = require('./Config')
-const need2Login = require('./need2Login')
 const webdriver = require('selenium-webdriver')
 const By = webdriver.By
 const Key = webdriver.Key
 
-module.exports = function login (userinfo = Config.userinfo, delay = 500) {
+function isLoginPath (currentUrl) {
+  return Config.loginPage.rPath.test(currentUrl)
+}
+
+async function atLogin (driver, userinfo = Config.userinfo) {
+  let currentUrl = await driver.getCurrentUrl().catch(() => {})
+  // console.log('currentUrl', currentUrl)
+  isLoginPath(currentUrl) && await login(userinfo)(driver)
+  return driver
+}
+
+function login (userinfo = Config.userinfo, delay = 500) {
   return async (driver) => {
     await driver.sleep(1000)
 
-    let need2LoginDefer = await need2Login(driver, userinfo).catch(() => {})
-    if (!need2LoginDefer) return driver
+    let currentUrl = await driver.getCurrentUrl().catch(() => {})
+    if (!isLoginPath(currentUrl)) return driver
 
     let $pageRoot = await driver.findElement(By.css('.page-user-login'))
     let $tabs = await $pageRoot.findElements(By.css('.tab'))
@@ -75,3 +85,7 @@ module.exports = function login (userinfo = Config.userinfo, delay = 500) {
     }
   }
 }
+
+module.exports = login
+login.isLoginPath = isLoginPath
+login.atLogin = atLogin

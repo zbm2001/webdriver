@@ -1,10 +1,10 @@
 const webdriver = require('selenium-webdriver')
+const By = webdriver.By
 
 module.exports = function guide (stepBranch = '立即体验', delay = 500) {
   return async (driver) => {
     let driverActions = driver.actions()
     let touchActions = driver.touchActions()
-    let By = webdriver.By
     let $appGuidePage = await driver.findElement(By.id('appGuidePage')).catch(() => {})
 
     if ($appGuidePage) {
@@ -21,7 +21,13 @@ module.exports = function guide (stepBranch = '立即体验', delay = 500) {
       }
 
       let $linkBtn = await $appGuidePage.findElement(By.css(selector)).catch(() => {})
-      if ($linkBtn) await $linkBtn.click()
+      if ($linkBtn) {
+        await $linkBtn.click()
+        await touchActions.tap($linkBtn)
+        let location = await $linkBtn.getLocation()
+        let size = await $linkBtn.getSize()
+        await touchActions.tapAndHold(location)
+      }
     }
 
     await driver.sleep(delay)
