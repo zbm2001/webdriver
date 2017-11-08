@@ -1,20 +1,39 @@
 const Config = require('./Config')
+const analogKeyboardInput = require('../lib/analogKeyboardInput')
 const webdriver = require('selenium-webdriver')
 const By = webdriver.By
 const Key = webdriver.Key
 
-function isLoginPath (currentUrl) {
-  return Config.loginPage.rPath.test(currentUrl)
+/**
+ * 判断 url 是否为登录页面
+ * @param {String} url
+ * @returns {Boolean}
+ */
+function isLoginPath (url) {
+  return Config.loginPage.rPath.test(url)
 }
 
-async function atLogin (driver, userinfo = Config.userinfo) {
-  let currentUrl = await driver.getCurrentUrl().catch(() => {})
-  // console.log('currentUrl', currentUrl)
-  isLoginPath(currentUrl) && await login(userinfo)(driver)
-  return driver
+/**
+ * 模拟键盘输入
+ * @param {Object} userinfo
+ * @returns {Function.<async>}
+ */
+function atLogin (userinfo = Config.userinfo) {
+  return async (driver) => {
+    let currentUrl = await driver.getCurrentUrl().catch(() => {})
+    // console.log('currentUrl', currentUrl)
+    isLoginPath(currentUrl) && await login(userinfo)(driver)
+    return driver
+  }
 }
 
-function login (userinfo = Config.userinfo, delay = 500) {
+/**
+ * 模拟键盘输入
+ * @param {Object} userinfo
+ * @param {Number.<uint>} delay
+ * @returns {Function.<async>}
+ */
+function login (userinfo = Config.userinfo, delay = Config.globalDelay) {
   return async (driver) => {
     await driver.sleep(1000)
 
@@ -30,20 +49,20 @@ function login (userinfo = Config.userinfo, delay = 500) {
       await $tabs[0].click()
 
       let $phone = $tabsetPages[0].findElement(By.css('input[type="tel"][placeholder="请输入手机号"]'))
-      await analogKeyboardInput($phone, userinfo.phone)
+      await analogKeyboardInput($phone, userinfo.phone)(driver)
 
       let $password = $pageRoot.findElement(By.css('input[type="password"]'))
-      await analogKeyboardInput($password, userinfo.password)
+      await analogKeyboardInput($password, userinfo.password)(driver)
 
       // 手机短信验证码登录
     } else if (userinfo.phoneVeriCode) {
       await $tabs[1].click()
 
       let $phone = $tabsetPages[1].findElement(By.css('input[type="tel"][placeholder="请输入手机号"]'))
-      await analogKeyboardInput($phone, userinfo.phone)
+      await analogKeyboardInput($phone, userinfo.phone)(driver)
 
       let $phoneVeriCode = $pageRoot.findElement(By.css('.art-phone-veri-code input'))
-      await analogKeyboardInput($phoneVeriCode, userinfo.phoneVeriCode)
+      await analogKeyboardInput($phoneVeriCode, userinfo.phoneVeriCode)(driver)
     }
 
     await driver.sleep(Math.random() * 1000)
@@ -53,39 +72,9 @@ function login (userinfo = Config.userinfo, delay = 500) {
     await driver.sleep(delay)
 
     return driver
-
-    /**
-     * 模拟键盘输入
-     * @param {Object.<WebElement>} $elem WebDriver 获取的 WebElement
-     * @param {String} characters 输入字符
-     * @returns {Promise.<*>}
-     */
-    async function analogKeyboardInput ($elem, characters) {
-      await analogKeyboardSpiteInput($elem, characters)
-      await driver.sleep(Math.random() * 1000)
-      await $elem.sendKeys(Key.chord(Key.CONTROL, "a"))
-      await driver.sleep(Math.random() * 1000)
-      await $elem.sendKeys(characters)
-    }
-
-    /**
-     * 键盘分解字符输入
-     * @param {Object.<WebElement>} $elem WebDriver 获取的 WebElement
-     * @param {String} characters 输入字符
-     * @returns {Promise.<*>}
-     */
-    async function analogKeyboardSpiteInput ($elem, characters) {
-      // reduce() 若未设置 this 参与求值，则数组的第一位不参与函数执行
-      return ('_' + characters).split('').reduce(async (sendKeysDefer, n, i) => {
-        // console.log('result, n, i', result, n, i)
-        await (i > 1 ? sendKeysDefer : $elem.sendKeys(sendKeysDefer))
-        await driver.sleep(Math.random() * 400)
-        return $elem.sendKeys(n)
-      })
-    }
   }
 }
 
-module.exports = login
-login.isLoginPath = isLoginPath
-login.atLogin = atLogin
+exports = module.exports = login
+exports.isLoginPath = isLoginPath
+exports.atLogin = atLogin

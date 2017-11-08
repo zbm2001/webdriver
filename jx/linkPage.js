@@ -3,7 +3,7 @@ const login = require('./login')
 const webdriver = require('selenium-webdriver')
 const By = webdriver.By
 
-module.exports = function linkPage (matchesLinkText = '我的', delay = 500) {
+module.exports = function linkPage (matchesLinkText = '我的', delay = Config.globalDelay) {
   return async (driver) => {
     let $myA = await driver.findElement(By.css(matchesLinkText)).catch(() => {})
     if (!$myA) $myA = await driver.findElement(By.partialLinkText(matchesLinkText)).catch(() => {})
@@ -14,6 +14,8 @@ module.exports = function linkPage (matchesLinkText = '我的', delay = 500) {
 
     await driver.sleep(delay)
 
-    return login.atLogin(driver, Config.userinfo)
+    await login.atLogin(Config.userinfo)(driver)
+
+    return driver
   }
 }

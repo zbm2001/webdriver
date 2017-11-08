@@ -1,4 +1,6 @@
-exports.loginPage = {
+exports.globalDelay = 500
+
+    exports.loginPage = {
   path: '/user/login',
   rPath: /\/user\/login(?=[#?]|$)/
 }

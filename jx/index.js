@@ -15,6 +15,6 @@ createDriver(Config.broswersConfig).
 then(openUrl('http://192.168.1.91:8080')).
 then(guide('立即体验')).
 then(linkPage('我的')).
-then(login(Config.userinfo)).
-then((driver) => driver.sleep(Infinity))
+// then(login(Config.userinfo)).
+then(async (driver) => await driver.sleep(Infinity))
 

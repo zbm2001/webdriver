@@ -1,4 +1,6 @@
-module.exports = function openUrl (url = 'http://localhost:8080', delay = 500) {
+const Config = require('./Config')
+
+module.exports = function openUrl (url = 'http://localhost:8080', delay = Config.globalDelay) {
   return async (driver) => {
     if (/(?:l(?:ocal(?:host)?)?|本地?|本机?)[-:\s]*(?:8080|app)/i.test(url)) {
       // 本地 app

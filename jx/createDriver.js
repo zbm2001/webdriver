@@ -1,8 +1,8 @@
+const Config = require('./Config')
 const webdriver = require('selenium-webdriver')
 const chrome = require('selenium-webdriver/chrome')
-const Config = require('./Config')
 
-module.exports = async function createDriver (broswers = Config.broswersConfig, delay = 500) {
+module.exports = async function createDriver (broswers = Config.broswersConfig, delay = Config.globalDelay) {
   let builder = new webdriver.Builder()
   for (let broswerName in broswers) {
     let broswerConfig = broswers[broswerName]
